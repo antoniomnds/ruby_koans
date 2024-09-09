@@ -2,19 +2,17 @@ require File.expand_path(File.dirname(__FILE__) + '/neo')
 
 # Implement a DiceSet Class here:
 #
-# class DiceSet
-#   code ...
-# end
-
-#--
 class DiceSet
   attr_reader :values
-  def roll(n)
-    @values = (1..n).map { rand(6) + 1 }
+
+  def roll(dice)
+    @values = []
+    dice.times do |i|
+      @values << Random.rand(5) + 1 # Random.rand(1..6) or rand(1..6) would be better
+    end
   end
 end
 
-#++
 class AboutDiceProject < Neo::Koan
   def test_can_create_a_dice_set
     dice = DiceSet.new
@@ -24,7 +22,7 @@ class AboutDiceProject < Neo::Koan
   def test_rolling_the_dice_returns_a_set_of_integers_between_1_and_6
     dice = DiceSet.new
 
-    dice.roll(5)
+    dice.roll(5) # rolls 5 dice
     assert dice.values.is_a?(Array), "should be an array"
     assert_equal 5, dice.values.size
     dice.values.each do |value|
@@ -50,13 +48,15 @@ class AboutDiceProject < Neo::Koan
     second_time = dice.values
 
     assert_not_equal first_time, second_time,
-      "Two rolls should not be equal"
+      "Two rolls should not be equal" # Not true as two consecutive rolls can have the same numbers
 
     # THINK ABOUT IT:
     #
     # If the rolls are random, then it is possible (although not
     # likely) that two consecutive rolls are equal.  What would be a
     # better way to test this?
+    # By also comparing the object_id, we guarantee that two consecutive rolls are always different:
+    # assert_not_equal first_time.object_id, second_time.object_id, "Two rools shoud not be equal"
   end
 
   def test_you_can_roll_different_numbers_of_dice

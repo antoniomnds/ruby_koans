@@ -30,28 +30,42 @@ require File.expand_path(File.dirname(__FILE__) + '/neo')
 # Your goal is to write the score method.
 
 def score(dice)
-  # You need to write this method
-  #--
-  result = 0
-  (1..6).each do |face|
-    count = dice.select { |n| n == face }.size
-    while count > 0
-      if count >= 3
-        result += (face == 1) ? 1000 : 100 * face
-        count -= 3
-      elsif face == 5
-        result += count * 50
-        count = 0
-      elsif face == 1
-        result += count * 100
-        count = 0
-      else
-        count = 0
-      end
+  return 0 if dice.empty?
+
+  score = 0
+  # stores in the position (number - 1) the number of times each number occurs in a roll of the dice
+  numbers = [0, 0, 0, 0, 0, 0]
+  dice.each do |die_number|
+    numbers[die_number - 1] += 1
+  end
+
+  # Rule #1: A set of three ones is 1000 points.
+  if numbers[0] >= 3
+    score += 1000
+    numbers[0] -= 3
+  end
+
+  # Rule #2: A set of three numbers (other than ones) is worth 100 times the number.
+  numbers.each_with_index do |number, idx|
+    next if idx == 0
+
+    if number >= 3
+      score += 100 * (idx + 1)
+      numbers[idx] -= 3
     end
   end
-  result
-  #++
+
+  # Rule #3: A one (that is not part of a set of three) is worth 100 points.
+  numbers[0].times do |i|
+    score += 100
+  end
+
+  # Rule #4: A five (that is not part of a set of three) is worth 50 points.
+  numbers[4].times do |i|
+    score += 50
+  end
+
+  score
 end
 
 class AboutScoringProject < Neo::Koan
